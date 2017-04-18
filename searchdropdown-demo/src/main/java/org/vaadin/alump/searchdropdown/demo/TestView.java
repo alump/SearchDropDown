@@ -6,13 +6,13 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
 import org.vaadin.alump.searchdropdown.SearchDropDown;
-import org.vaadin.alump.searchdropdown.SimpleSearchSuggestionProvider;
+import org.vaadin.alump.searchdropdown.SimpleSuggestionProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by alump on 14/04/2017.
+ * Just test view used to verify look'n feel and some basic functionality of add-on
  */
 public class TestView extends HorizontalLayout implements View {
 
@@ -63,9 +63,7 @@ public class TestView extends HorizontalLayout implements View {
         showClear.addValueChangeListener(e -> searchField.setShowClear(e.getValue()));
         rightColumn.addComponent(showClear);
 
-        Button menuButton = new Button(null, VaadinIcons.MENU);
-        menuButton.addClickListener(e -> navigator.navigateTo(MenuView.VIEW_NAME));
-        rightColumn.addComponent(menuButton);
+        rightColumn.addComponent(new MenuButton(e -> navigator.navigateTo(MenuView.VIEW_NAME)));
     }
 
     @Override
@@ -73,7 +71,7 @@ public class TestView extends HorizontalLayout implements View {
         navigator = event.getNavigator();
     }
 
-    private SimpleSearchSuggestionProvider provider = query -> {
+    private SimpleSuggestionProvider provider = query -> {
         List<String> results = new ArrayList<>();
         if(query.isEmpty()) {
             return results;

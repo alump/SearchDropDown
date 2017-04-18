@@ -1,3 +1,20 @@
+/**
+ * SearchDropDown.java (SearchDropDown)
+ *
+ * Copyright 2017 Vaadin Ltd, Sami Viitanen <sami.viitanen@vaadin.org>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.vaadin.alump.searchdropdown;
 
 import com.vaadin.shared.ui.ValueChangeMode;
@@ -5,7 +22,7 @@ import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.HasValueChangeMode;
 import org.vaadin.alump.searchdropdown.client.share.SearchDropDownClientRpc;
 import org.vaadin.alump.searchdropdown.client.share.SearchDropDownServerRpc;
-import org.vaadin.alump.searchdropdown.client.share.SearchFieldState;
+import org.vaadin.alump.searchdropdown.client.share.SearchDropDownState;
 import org.vaadin.alump.searchdropdown.client.share.SharedSuggestion;
 
 import java.util.*;
@@ -14,7 +31,7 @@ import java.util.logging.Logger;
 
 /**
  * Search drop down field
- * @param <T>
+ * @param <T> Type of suggestion values
  */
 public class SearchDropDown<T> extends AbstractField<String> implements SearchSuggestionPresenter<T>, HasValueChangeMode {
 
@@ -61,23 +78,34 @@ public class SearchDropDown<T> extends AbstractField<String> implements SearchSu
         }
     };
 
+    /**
+     * Create new SearchDropDown without suggestion provider (must be provided later)
+     */
     public SearchDropDown() {
         super();
         setValueChangeMode(ValueChangeMode.LAZY);
         registerRpc(serverRpc, SearchDropDownServerRpc.class);
     }
 
+    /**
+     * Create new SearchDropDown with suggestion provider
+     * @param provider Suggestion provider used to find suggestions for search queries
+     */
     public SearchDropDown(SearchSuggestionProvider<T> provider) {
         this();
         this.suggestionProvider = Objects.requireNonNull(provider);
     }
 
+    @Override
     public void detach() {
         clearSuggestions();
         super.detach();
     }
 
-    protected void hideSuggestions() {
+    /**
+     * Ask to hide suggestions. Usually you should not need to call this from outside.
+     */
+    public void hideSuggestions() {
         getRpcProxy(SearchDropDownClientRpc.class).hideSuggestions();
     }
 
@@ -85,10 +113,19 @@ public class SearchDropDown<T> extends AbstractField<String> implements SearchSu
         return Logger.getLogger(SearchDropDown.class.getName());
     }
 
-    public void setSearchOptionProvider(SearchSuggestionProvider<T> provider) {
+    /**
+     * Define suggestion provider for SearchDropDown. New provider will be used when next query is received from client
+     * side.
+     * @param provider Suggestion provider
+     */
+    public void setSuggestionProvider(SearchSuggestionProvider<T> provider) {
         this.suggestionProvider = provider;
     }
 
+    /**
+     * Get current suggestion provider
+     * @return
+     */
     protected Optional<SearchSuggestionProvider<T>> getSuggestionProvider() {
         return Optional.ofNullable(suggestionProvider);
     }
@@ -100,16 +137,20 @@ public class SearchDropDown<T> extends AbstractField<String> implements SearchSu
     }
 
     @Override
-    protected SearchFieldState getState() {
-        return (SearchFieldState) super.getState();
+    protected SearchDropDownState getState() {
+        return (SearchDropDownState) super.getState();
     }
 
     @Override
-    protected SearchFieldState getState(boolean markDirty) {
-        return (SearchFieldState) super.getState(markDirty);
+    protected SearchDropDownState getState(boolean markDirty) {
+        return (SearchDropDownState) super.getState(markDirty);
     }
 
 
+    /**
+     * Returns value in text field
+     * @return
+     */
     @Override
     public String getValue() {
         return textFromClient;
@@ -172,6 +213,10 @@ public class SearchDropDown<T> extends AbstractField<String> implements SearchSu
         return "suggestion-" + suggestionId;
     }
 
+    /**
+     * Define placeholder on text field, shown when no value is written there
+     * @param placeHolder Place holder text shown in text field
+     */
     public void setPlaceHolder(String placeHolder) {
         getState().placeholder = placeHolder;
     }
@@ -207,10 +252,18 @@ public class SearchDropDown<T> extends AbstractField<String> implements SearchSu
         return getState(false).valueChangeTimeout;
     }
 
+    /**
+     * Add listener for search events
+     * @param listener
+     */
     public void addSearchListener(SearchListener<T> listener) {
         searchListeners.add(listener);
     }
 
+    /**
+     * Remove listener of search events
+     * @param listener
+     */
     public void removeSearchListener(SearchListener<T> listener) {
         searchListeners.remove(listener);
     }

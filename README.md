@@ -1,5 +1,7 @@
 # SearchDropDown Add-on for Vaadin 8
 
+[![Build Status](https://siika.fi/jenkins/job/SearchDropDown%20(Vaadin)/badge/icon)](https://siika.fi/jenkins/job/SearchDropDown%20(Vaadin)/)
+
 SearchDropDown provides search field with drop down suggestions, designed to be used with asynchronous queries
 required to find suitable suggestions.
 
@@ -14,7 +16,7 @@ go to http://vaadin.com/addon/searchdropdown
 
 ## Building and running demo
 
-git clone <url of the MyComponent repository>
+git clone https://github.com/alump/SearchDropDown.git
 mvn clean install
 cd demo
 mvn jetty:run
@@ -55,6 +57,7 @@ Debugging client side code in the searchfield-demo project:
 
 ### Version 0.1.0 (2017-04-17)
 - Initial experimental release
+- Currently expects to be used with Valo based themes
 
 ## Roadmap
 

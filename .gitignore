@@ -1,1 +1,7 @@
 .idea/
+*.iml
+searchdropdown-addon/target/
+searchdropdown-demo/target/
+*.css
+*.scss.cache
+searchdropdown-demo/src/main/webapp/VAADIN/themes/demo/addons.scss

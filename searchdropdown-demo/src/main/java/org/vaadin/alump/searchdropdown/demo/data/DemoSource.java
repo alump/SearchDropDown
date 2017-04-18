@@ -128,7 +128,7 @@ public class DemoSource {
             // Make sure we spent at least 2 seconds in this method
             long sleepMilli = 2000 - (Duration.between(startedAt, LocalDateTime.now()).getNano() / 1000000);
             if(sleepMilli > 0) {
-                System.out.println("Sleep " + sleepMilli + "ms");
+                //System.out.println("Sleep " + sleepMilli + "ms");
                 Thread.sleep(sleepMilli);
             }
 

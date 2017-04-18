@@ -115,9 +115,10 @@
 					<!-- You are free to mark this as permanently ignored in Eclipse -->
 					<execution>
 						<configuration>
-							<!-- if you don't specify any modules, the plugin will find them -->
+							<!-- if you don't specify any modules, the plugin will find them
 							<style>PRETTY</style>
 							<draftCompile>true</draftCompile>
+							-->
 						</configuration>
 						<goals>
 							<goal>resources</goal>

@@ -29,6 +29,7 @@ public class DemoUI extends UI {
         navigator.addView(TestView.VIEW_NAME, TestView.class);
         navigator.addView(ExampleView.VIEW_NAME, ExampleView.class);
         navigator.addView(JustTesting.VIEW_NAME, JustTesting.class);
+        navigator.addView(SimpleView.VIEW_NAME, SimpleView.class);
         navigator.setErrorView(MenuView.class);
         setNavigator(navigator);
     }

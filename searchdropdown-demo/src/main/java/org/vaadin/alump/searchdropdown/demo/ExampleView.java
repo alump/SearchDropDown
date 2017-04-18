@@ -4,7 +4,6 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
@@ -17,14 +16,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Created by alump on 14/04/2017.
+ * Example view that shows the basic asynchronous behavior of SearchDropDown
  */
 public class ExampleView extends VerticalLayout implements View {
 
     public final static String VIEW_NAME = "";
     private Navigator navigator;
 
-
+    /**
+     * Example suggestion wrapper for data objects
+     */
     public static class ExampleSuggestion implements SearchSuggestion<String> {
 
         private final String text;
@@ -55,10 +56,6 @@ public class ExampleView extends VerticalLayout implements View {
         public String getValue() {
             return value;
         }
-
-        public SearchSuggestion<String> getThis() {
-            return this;
-        }
     }
 
     public ExampleView() {
@@ -86,8 +83,7 @@ public class ExampleView extends VerticalLayout implements View {
     private Component createNavigationRow() {
         HorizontalLayout topRow = new HorizontalLayout();
         topRow.setSpacing(true);
-        Button menu = new Button(null, VaadinIcons.MENU);
-        menu.addClickListener(e -> navigator.navigateTo(MenuView.VIEW_NAME));
+        MenuButton menu = new MenuButton(e -> navigator.navigateTo(MenuView.VIEW_NAME));
         Label header = new Label("SearchDropDown Vaadin add-on");
         header.addStyleName(ValoTheme.LABEL_H3);
         topRow.addComponents(menu, header);
