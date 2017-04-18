@@ -55,6 +55,9 @@ Debugging client side code in the searchfield-demo project:
  
 ## Release notes
 
+### Version 0.1.1 (TBD)
+- TBD
+
 ### Version 0.1.0 (2017-04-17)
 - Initial experimental release
 - Currently expects to be used with Valo based themes
