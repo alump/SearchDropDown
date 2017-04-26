@@ -17,12 +17,14 @@
  */
 package org.vaadin.alump.searchdropdown.client.share;
 
+import com.vaadin.shared.MouseEventDetails;
+import com.vaadin.shared.ui.ClickRpc;
 import com.vaadin.shared.ui.textfield.AbstractTextFieldServerRpc;
 
 /**
  * Server RPC for SearchDropDown
  */
-public interface SearchDropDownServerRpc extends AbstractTextFieldServerRpc {
+public interface SearchDropDownServerRpc extends AbstractTextFieldServerRpc, ClickRpc {
 
     void suggestionSelected(int suggestionId);
 

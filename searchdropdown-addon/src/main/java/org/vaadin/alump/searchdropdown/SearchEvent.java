@@ -28,17 +28,24 @@ public class SearchEvent<T> implements Serializable {
     private final SearchDropDown<T> source;
     private final String text;
     private final SearchSuggestion<T> suggestion;
+    private final boolean clearEvent;
 
     public SearchEvent(SearchDropDown<T> source, String text) {
+        this(source, text, false);
+    }
+
+    public SearchEvent(SearchDropDown<T> source, String text, boolean clear) {
         this.source = source;
         this.text = text;
         this.suggestion = null;
+        this.clearEvent = clear;
     }
 
     public SearchEvent(SearchDropDown<T> source, SearchSuggestion<T> suggestion) {
         this.source = source;
         this.text = null;
         this.suggestion = suggestion;
+        this.clearEvent = false;
     }
 
     public SearchDropDown<T> getSource() {
@@ -55,6 +62,10 @@ public class SearchEvent<T> implements Serializable {
 
     public boolean hasSuggestion() {
         return getSuggestion().isPresent();
+    }
+
+    public boolean isClear() {
+        return clearEvent;
     }
 
 }

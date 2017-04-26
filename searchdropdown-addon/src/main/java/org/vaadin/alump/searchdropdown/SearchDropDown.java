@@ -17,6 +17,10 @@
  */
 package org.vaadin.alump.searchdropdown;
 
+import com.vaadin.event.MouseEvents;
+import com.vaadin.shared.EventId;
+import com.vaadin.shared.MouseEventDetails;
+import com.vaadin.shared.Registration;
 import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.HasValueChangeMode;
@@ -62,7 +66,6 @@ public class SearchDropDown<T> extends AbstractField<String> implements SearchSu
 
         @Override
         public void textSelected(String text) {
-            getLogger().warning("Text selection: " + text);
             setValue(text, true);
             hideSuggestions();
 
@@ -71,10 +74,22 @@ public class SearchDropDown<T> extends AbstractField<String> implements SearchSu
         }
 
         @Override
+        public void click(MouseEventDetails mouseDetails) {
+            fireEvent(new MouseEvents.ClickEvent(SearchDropDown.this, mouseDetails));
+        }
+
+        @Override
         public void setText(String text, int cursorPosition) {
+            boolean clearEvent = text.isEmpty() && !text.equals(textFromClient);
+
             textFromClient = text;
             getState(false).text = text;
             updateSuggestions(text);
+
+            if(clearEvent) {
+                SearchEvent<T> event = new SearchEvent<T>(SearchDropDown.this, text, true);
+                searchListeners.forEach(l -> l.search(event));
+            }
         }
     };
 
@@ -266,5 +281,23 @@ public class SearchDropDown<T> extends AbstractField<String> implements SearchSu
      */
     public void removeSearchListener(SearchListener<T> listener) {
         searchListeners.remove(listener);
+    }
+
+    /**
+     * Add click listener (called when search icon of field is clicked, can be used as search initializing button)
+     * @param listener Listener added
+     */
+    public Registration addClickListener(MouseEvents.ClickListener listener) {
+        return addListener(EventId.CLICK_EVENT_IDENTIFIER, MouseEvents.ClickEvent.class, listener,
+                MouseEvents.ClickListener.clickMethod);
+    }
+
+    /**
+     * Remove click listener
+     * @param listener Listener removed
+     */
+    public void removeClickListener(MouseEvents.ClickListener listener) {
+        removeListener(EventId.CLICK_EVENT_IDENTIFIER, MouseEvents.ClickEvent.class,
+                listener);
     }
 }

@@ -35,7 +35,13 @@ public class SimpleView extends VerticalLayout implements View {
         SimpleSearchDropDown simpleSearch = new SimpleSearchDropDown(provider);
         simpleSearch.setWidth(500, Unit.PIXELS);
         simpleSearch.setPlaceHolder("Search Phonetic Alphabets");
-        simpleSearch.addSearchListener(e -> Notification.show("User selected: " + e.getText()));
+        simpleSearch.addSearchListener(e -> {
+            if(e.isClear()) {
+                Notification.show("User cleared the field");
+            } else {
+                Notification.show("User selected: " + e.getText());
+            }
+        });
         addComponent(simpleSearch);
     }
 

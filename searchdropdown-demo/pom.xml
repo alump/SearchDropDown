@@ -5,7 +5,7 @@
 	<groupId>org.vaadin.alump</groupId>
 	<artifactId>searchdropdown-demo</artifactId>
 	<packaging>war</packaging>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.1</version>
 	<name>SearchDropDown Add-on Demo</name>
 
 	<prerequisites>

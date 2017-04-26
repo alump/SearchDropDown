@@ -17,11 +17,14 @@
  */
 package org.vaadin.alump.searchdropdown.client;
 
+import com.google.gwt.dom.client.NativeEvent;
 import com.vaadin.client.ApplicationConnection;
 import com.vaadin.client.WidgetUtil;
 import com.vaadin.client.annotations.OnStateChange;
+import com.vaadin.client.ui.ClickEventHandler;
 import com.vaadin.client.ui.Icon;
 import com.vaadin.client.ui.textfield.ValueChangeHandler;
+import com.vaadin.shared.MouseEventDetails;
 import org.vaadin.alump.searchdropdown.SearchDropDown;
 
 import com.vaadin.client.communication.StateChangeEvent;
@@ -112,6 +115,8 @@ public class SearchDropDownConnector extends AbstractComponentConnector implemen
     public void onStateChanged(StateChangeEvent stateChangeEvent) {
         super.onStateChanged(stateChangeEvent);
 
+        clickEventHandler.handleEventHandlerRegistration();
+
         if(waitingSuggestionTo == null) {
             getWidget().setText(getState().text);
         }
@@ -157,4 +162,18 @@ public class SearchDropDownConnector extends AbstractComponentConnector implemen
     private void updateValueChangeTimeout() {
         valueChangeHandler.setValueChangeTimeout(getState().valueChangeTimeout);
     }
+
+    protected final ClickEventHandler clickEventHandler = new ClickEventHandler(
+            this) {
+
+        @Override
+        protected void fireClick(NativeEvent event, MouseEventDetails mouseDetails) {
+            if(getWidget().isEventAtIcon(event)) {
+                getRpcProxy(SearchDropDownServerRpc.class).click(mouseDetails);
+                event.stopPropagation();
+            }
+        }
+
+    };
+
 }

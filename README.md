@@ -55,8 +55,9 @@ Debugging client side code in the searchfield-demo project:
  
 ## Release notes
 
-### Version 0.1.1 (TBD)
-- TBD
+### Version 0.1.1 (2017-04-26)
+- Clearing field now emits a search event, identified by isClear method
+- Click events are now fired if user clicks the icon in search field. Can be used as search initializer or something else.
 
 ### Version 0.1.0 (2017-04-17)
 - Initial experimental release
@@ -91,7 +92,27 @@ SearchDropDown is written by Sami Viitanen sami.viitanen@vaadin.com
 
 ## Getting started
 
-Here is a simple example on how to try out the add-on component:
+Here is a simple example on how to try out the add-on component (simple String mapped synchronous API usage).
+
+```java
+public static final String VALUES[] = { "alfa", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel",
+    "india", "juliett", "kilo", "lima", "mike", "november", "oscar", "papa", "quebec", "romea", "sierra",
+    "tango", "uniform", "victor", "whiskey", "xray", "yankee", "zulu" };
+
+SimpleSearchDropDown simpleSearch = new SimpleSearchDropDown(query -> {
+    // For empty query, do not provide any suggestions
+    final String cleaned = query.toLowerCase().trim();
+    if(cleaned.isEmpty()) {
+        return Collections.EMPTY_LIST;
+    }
+
+    // Normally here you would perform database or REST query or queries, to find suitable suggestions.
+    // Simple API is always synchronous, so when you want to go to asynchronous use base class.
+    return Arrays.stream(VALUES).filter(v -> v.contains(cleaned)).collect(Collectors.toList());
+});
+simpleSearch.setPlaceHolder("Search Phonetic Alphabets");
+simpleSearch.addSearchListener(e -> Notification.show("User selected: " + e.getText()));
+```
 
 <...>
 

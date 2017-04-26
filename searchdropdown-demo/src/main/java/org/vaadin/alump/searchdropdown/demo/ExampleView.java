@@ -1,5 +1,6 @@
 package org.vaadin.alump.searchdropdown.demo;
 
+import com.vaadin.event.MouseEvents;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
@@ -76,8 +77,14 @@ public class ExampleView extends VerticalLayout implements View {
         peopleSearch.setPlaceHolder("Search people by name, city or country");
         peopleSearch.setWidth(600, Unit.PIXELS);
         peopleSearch.addSearchListener(this::performSearch);
+        peopleSearch.addClickListener(this::searchClicked);
 
         addComponents(createNavigationRow(), addonInfo, demoInfo, peopleSearch, new GitHubLink());
+    }
+
+    private void searchClicked(MouseEvents.ClickEvent event) {
+        Notification.show("User clicked search field icon x:"
+                + event.getClientX() + " y:" + event.getClientY());
     }
 
     private Component createNavigationRow() {
@@ -91,7 +98,9 @@ public class ExampleView extends VerticalLayout implements View {
     }
 
     private void performSearch(SearchEvent<String> event) {
-        if(event.hasSuggestion()) {
+        if(event.isClear()) {
+            Notification.show("Search cleared");
+        } else if(event.hasSuggestion()) {
             Notification.show("Suggestion '" + event.getSuggestion().get().getValue() + "' selected");
         } else {
             Notification.show("Text '" + event.getText() + "' selected");

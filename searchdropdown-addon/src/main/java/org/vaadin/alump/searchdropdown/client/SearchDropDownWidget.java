@@ -105,6 +105,8 @@ public class SearchDropDownWidget extends Composite {
         textField.setValue("");
         checkClearVisibility(textField.getValue());
         suggestionProvider.valueChanged("");
+        event.stopPropagation();
+        event.preventDefault();
     }
 
     protected void onDetach() {
@@ -409,6 +411,10 @@ public class SearchDropDownWidget extends Composite {
                 popup.getElement().removeClassName(LOADING_SUGGESTIONS_STYLENAME);
             }
         }
+    }
+
+    public boolean isEventAtIcon(NativeEvent event) {
+        return iconElement == Element.as(event.getEventTarget());
     }
 
 }
