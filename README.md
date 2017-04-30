@@ -1,6 +1,6 @@
 # SearchDropDown Add-on for Vaadin 8
 
-[![Build Status](https://siika.fi/jenkins/job/SearchDropDown%20(Vaadin)/badge/icon)](https://siika.fi/jenkins/job/SearchDropDown%20(Vaadin)/)
+[![Build Status](https://epic.siika.fi/jenkins/job/SearchDropDown%20(Vaadin)/badge/icon)](https://epic.siika.fi/jenkins/job/SearchDropDown%20(Vaadin)/)
 
 SearchDropDown provides search field with drop down suggestions, designed to be used with asynchronous queries
 required to find suitable suggestions.
