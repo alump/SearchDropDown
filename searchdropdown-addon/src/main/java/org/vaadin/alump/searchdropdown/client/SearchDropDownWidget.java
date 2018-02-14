@@ -17,6 +17,7 @@
  */
 package org.vaadin.alump.searchdropdown.client;
 
+import com.google.gwt.animation.client.AnimationScheduler;
 import com.google.gwt.aria.client.Roles;
 import com.google.gwt.dom.client.*;
 import com.google.gwt.dom.client.Element;
@@ -25,6 +26,7 @@ import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.vaadin.client.WidgetUtil;
 import com.vaadin.client.ui.SubPartAware;
 import com.vaadin.client.ui.VOverlay;
 import com.vaadin.client.ui.menubar.MenuBar;
@@ -226,6 +228,7 @@ public class SearchDropDownWidget extends Composite {
         if(suggestions.isEmpty()) {
             popup.hide();
         } else {
+            popup.updatePopupPositionOnScroll();
             popup.showRelativeTo(this);
         }
     }
@@ -302,6 +305,9 @@ public class SearchDropDownWidget extends Composite {
 
         private static final int Z_INDEX = 30000;
         private SuggestionMenu menu;
+        private int topPosition;
+        private int leftPosition;
+        private boolean scrollPending = false;
 
         public SuggestionPopup() {
             super(true, false);
@@ -340,7 +346,10 @@ public class SearchDropDownWidget extends Composite {
 
             setHeight(heightPx + "px");
 
-            setPopupPosition(0, 0);
+            leftPosition = getDesiredLeftPosition();
+            topPosition = getDesiredTopPosition();
+
+            setPopupPosition(leftPosition, topPosition);
         }
 
         public void clearSuggestions() {
@@ -380,6 +389,60 @@ public class SearchDropDownWidget extends Composite {
 
         public boolean hasSelection() {
             return menu.getSelectedItem() != null;
+        }
+
+        private int getDesiredTopPosition() {
+            return toInt32(WidgetUtil.getBoundingClientRect(SearchDropDownWidget.this.getElement())
+                    .getBottom()) + Window.getScrollTop();
+        }
+
+        private int getDesiredLeftPosition() {
+            return toInt32(WidgetUtil
+                    .getBoundingClientRect(SearchDropDownWidget.this.getElement())
+                    .getLeft());
+        }
+
+        private native int toInt32(double val)
+        /*-{
+            return val | 0;
+        }-*/;
+
+        @Override
+        protected void onPreviewNativeEvent(Event.NativePreviewEvent event) {
+            // Check all events outside the combobox to see if they scroll the
+            // page. We cannot use e.g. Window.addScrollListener() because the
+            // scrolled element can be at any level on the page.
+
+            // Normally this is only called when the popup is showing, but make
+            // sure we don't accidentally process all events when not showing.
+            if (!scrollPending && isShowing() && !DOM.isOrHasChild(
+                    SuggestionPopup.this.getElement(),
+                    Element.as(event.getNativeEvent().getEventTarget()))) {
+                if (getDesiredLeftPosition() != leftPosition
+                        || getDesiredTopPosition() != topPosition) {
+                    updatePopupPositionOnScroll();
+                }
+            }
+
+            super.onPreviewNativeEvent(event);
+        }
+
+        /**
+         * Make the popup follow the position of the ComboBox when the page is
+         * scrolled.
+         */
+        private void updatePopupPositionOnScroll() {
+            if (!scrollPending) {
+                AnimationScheduler.get().requestAnimationFrame(timestamp -> {
+                    if (isShowing()) {
+                        leftPosition = getDesiredLeftPosition();
+                        topPosition = getDesiredTopPosition();
+                        setPopupPosition(leftPosition, topPosition);
+                    }
+                    scrollPending = false;
+                });
+                scrollPending = true;
+            }
         }
     }
 

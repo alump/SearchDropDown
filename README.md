@@ -55,6 +55,10 @@ Debugging client side code in the searchfield-demo project:
  
 ## Release notes
 
+### Version 0.2.0 (2018-02-13)
+- Increase Vaadin dependency to 8.3
+- Fix dropdown alignment issues with Vaadin 8.3
+
 ### Version 0.1.1 (2017-04-26)
 - Clearing field now emits a search event, identified by isClear method
 - Click events are now fired if user clicks the icon in search field. Can be used as search initializer or something else.

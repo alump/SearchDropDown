@@ -38,14 +38,20 @@ public class TestView extends HorizontalLayout implements View {
         setExpandRatio(leftColumn, 1f);
         setExpandRatio(rightColumn, 1f);
 
+        HorizontalLayout row = new HorizontalLayout();
+        row.setWidth(100, Unit.PERCENTAGE);
+        leftColumn.addComponent(row);
+
+        row.addComponent(new Button("Clear", e -> searchField.setValue(null)));
+
         searchField = new SearchDropDown<String>(provider);
         searchField.setCaption("SearchDropDown");
         searchField.setPlaceHolder("Write your search here");
         searchField.setWidth(100, Unit.PERCENTAGE);
-        leftColumn.addComponent(searchField);
+        row.addComponent(searchField);
+        row.setExpandRatio(searchField, 1f);
 
-        leftColumn.addComponent(new Button("Clear value", e -> searchField.setValue(null)));
-        leftColumn.addComponent(new Button("Set value", e -> searchField.setValue("Lorem Ipsum")));
+        row.addComponent(new Button("Set", e -> searchField.setValue("Lorem Ipsum")));
 
         TextField textField = new TextField();
         textField.setCaption("TextField (to compare look'n feel)");
