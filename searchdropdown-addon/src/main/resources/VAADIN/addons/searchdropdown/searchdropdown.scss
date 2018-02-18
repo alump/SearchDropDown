@@ -1,6 +1,14 @@
 @mixin searchdropdown {
 
-  $searchdropdown-padding: 4px 9px 4px 36px !default;
+  $searchdropdown-icon-left: 4px !default;
+  $searchdropdown-icon-right: auto !default;
+  $searchdropdown-icon-width: 28px !default;
+  $searchdropdown-icon-height: 28px !default;
+
+  $searchdropdown-padding-top: 4px !default;
+  $searchdropdown-padding-right: 9px !default;
+  $searchdropdown-padding-bottom: 4px !default;
+  $searchdropdown-padding-left: $searchdropdown-icon-width + 9px !default;
   $searchdropdown-border-radius: 4px !default;
   $searchdropdown-background: white !default;
   $searchdropdown-border: 1px solid #c5c5c5 !default;
@@ -13,13 +21,12 @@
   $searchdropdown-suggestion-selected-color: #ecf2f8 !default;
   $searchdropdown-suggestion-selected-text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05) !default;
 
-  $searchdropdown-icon-left: 4px !default;
-  $searchdropdown-icon-right: auto !default;
-
+  $searchdropdown-clear-icon-width: 28px !default;
+  $searchdropdown-clear-icon-height: 28px !default;
   $searchdropdown-clear-left: auto !default;
   $searchdropdown-clear-right: 0px !default;
-  $searchdropdown-clear-padding-left: 4px !default;
-  $searchdropdown-clear-padding-right: 28px !default;
+  $searchdropdown-clear-padding-left: $searchdropdown-padding-left !default;
+  $searchdropdown-clear-padding-right: $searchdropdown-padding-right + $searchdropdown-clear-icon-width !default;
 
   $searchdropdown-dropdown-background-color: white !default;
   $searchdropdown-dropdown-border-radius: 4px !default;
@@ -36,6 +43,10 @@
   .search-dropdown {
     position: relative;
     padding: $searchdropdown-padding;
+    padding-top: $searchdropdown-padding-top;
+    padding-right: $searchdropdown-padding-right;
+    padding-bottom: $searchdropdown-padding-bottom;
+    padding-left: $searchdropdown-padding-left;
     border-radius: $searchdropdown-border-radius;
     background: $searchdropdown-background;
     border: 1px solid #c5c5c5;
@@ -67,8 +78,8 @@
       top: 2px;
       left: $searchdropdown-icon-left;
       right: $searchdropdown-icon-right;
-      width: 28px;
-      height: 28px;
+      width: $searchdropdown-icon-width;
+      height: $searchdropdown-icon-height;
 
       &:after {
         position: absolute;
@@ -92,7 +103,7 @@
 
         &:before {
           position: absolute;
-          line-height: 28px;
+          line-height: $searchdropdown-icon-height;
           top: 0px;
           bottom: 0px;
           left: 0px;
@@ -126,9 +137,9 @@
         top: 2px;
         left: $searchdropdown-clear-left;
         right: $searchdropdown-clear-right;
-        height: 28px;
-        width: 28px;
-        line-height: 28px;
+        height: $searchdropdown-clear-icon-height;
+        width: $searchdropdown-clear-icon-width;
+        line-height: $searchdropdown-clear-icon-height;
         text-align: center;
         cursor: pointer;
 
