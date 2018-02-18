@@ -129,7 +129,10 @@ public class SearchDropDownConnector extends AbstractComponentConnector implemen
     }
 
     private void onFieldFocus(FocusEvent event) {
-        sendQuery(getWidget().getText());
+        String query = getWidget().getText();
+        if(query != null && !query.isEmpty()) {
+            sendQuery(query);
+        }
     }
 
     private void onSelection(Integer suggestionId, String text) {
