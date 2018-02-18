@@ -17,6 +17,8 @@
  */
 package org.vaadin.alump.searchdropdown.client.share;
 
+import com.vaadin.shared.ui.ContentMode;
+
 import java.io.Serializable;
 
 /**
@@ -28,15 +30,17 @@ public class SharedSuggestion implements Serializable {
     public String text;
     public String iconResource;
     public String styleName;
+    public ContentMode contentMode;
 
     public SharedSuggestion() {
 
     }
 
-    public SharedSuggestion(Integer id, String text, String styleName) {
+    public SharedSuggestion(Integer id, String text, String styleName, ContentMode contentMode) {
         this.id = id;
         this.text = text;
         this.styleName = styleName;
+        this.contentMode = contentMode;
     }
 
 }

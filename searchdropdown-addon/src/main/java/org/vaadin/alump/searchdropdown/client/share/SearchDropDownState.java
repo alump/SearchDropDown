@@ -57,4 +57,7 @@ public class SearchDropDownState extends AbstractFieldState {
     @NoLayout
     public boolean showClear = true;
 
+    @NoLayout
+    public ShowMoreResultsButtonState showMoreButton = null;
+
 }

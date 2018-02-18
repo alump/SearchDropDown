@@ -32,4 +32,12 @@ public interface SearchSuggestionProvider<T> extends Serializable {
      */
     void provideSuggestions(String query, SearchSuggestionPresenter<T> presenter);
 
+    /**
+     * Function to override if you use show more results feature of SearchDropDown
+     * @param query Query when button was clicked
+     */
+    default void showMoreResults(String query) {
+        throw new RuntimeException("Please override default showMoreResults implementation");
+    }
+
 }

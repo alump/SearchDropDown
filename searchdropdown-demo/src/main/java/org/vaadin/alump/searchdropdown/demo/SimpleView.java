@@ -5,6 +5,7 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
+import org.vaadin.alump.searchdropdown.SimpleHighlightedSuggestionProvider;
 import org.vaadin.alump.searchdropdown.SimpleSearchDropDown;
 import org.vaadin.alump.searchdropdown.SimpleSuggestionProvider;
 
@@ -33,6 +34,7 @@ public class SimpleView extends VerticalLayout implements View {
         addComponent(new MenuButton(e -> navigator.navigateTo(MenuView.VIEW_NAME)));
 
         SimpleSearchDropDown simpleSearch = new SimpleSearchDropDown(provider);
+        simpleSearch.addStyleName("blue-highlights");
         simpleSearch.setWidth(500, Unit.PIXELS);
         simpleSearch.setPlaceHolder("Search Phonetic Alphabets");
         simpleSearch.addSearchListener(e -> {
@@ -45,7 +47,7 @@ public class SimpleView extends VerticalLayout implements View {
         addComponent(simpleSearch);
     }
 
-    SimpleSuggestionProvider provider = (query) -> {
+    SimpleHighlightedSuggestionProvider provider = (query) -> {
         // For empty query, do not provide any suggestions
         final String cleaned = query.toLowerCase().trim();
         if(cleaned.isEmpty()) {

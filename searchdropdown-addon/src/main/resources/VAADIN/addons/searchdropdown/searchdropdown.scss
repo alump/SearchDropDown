@@ -1,19 +1,52 @@
 @mixin searchdropdown {
 
+  $searchdropdown-padding: 4px 9px 4px 36px !default;
+  $searchdropdown-border-radius: 4px !default;
+  $searchdropdown-background: white !default;
+  $searchdropdown-border: 1px solid #c5c5c5 !default;
+  $searchdropdown-focus-border-color: #197de1 !default;
+  $searchdropdown-box-shadow: inset 0 1px 0 #f7f7f7, 0 1px 0 rgba(255, 255, 255, 0.1) !default;
+  $searchdropdown-focus-box-shadow: 0 0 0 2px rgba(25,125,255,0.5) !default;
+
+  $searchdropdown-suggestion-icon-spacing: 5px !default;
+  $searchdropdown-suggestion-selected-background-color: #197de1 !default;
+  $searchdropdown-suggestion-selected-color: #ecf2f8 !default;
+  $searchdropdown-suggestion-selected-text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05) !default;
+
+  $searchdropdown-icon-left: 4px !default;
+  $searchdropdown-icon-right: auto !default;
+
+  $searchdropdown-clear-left: auto !default;
+  $searchdropdown-clear-right: 0px !default;
+  $searchdropdown-clear-padding-left: 4px !default;
+  $searchdropdown-clear-padding-right: 28px !default;
+
+  $searchdropdown-dropdown-background-color: white !default;
+  $searchdropdown-dropdown-border-radius: 4px !default;
+  $searchdropdown-dropdown-box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1), 0 3px 5px 0 rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.09) !default;
+  $searchdropdown-dropdown-padding: 4px 4px !default;
+
+  $searchdropdown-highlight-font-weight: 800 !default;
+  $searchdropdown-highlight-color: blue !default;
+  $searchdropdown-highlight-selected-color: lighten($searchdropdown-suggestion-selected-color, 0.5) !default;
+  $searchdropdown-highlight-text-decoration: underline !default;
+  $searchdropdown-highlight-text-shadow: white 1px 1px 1px !default;
+  $searchdropdown-highlight-selected-text-shadow: $searchdropdown-suggestion-selected-color !default;
+
   .search-dropdown {
     position: relative;
-    padding: 4px 9px 4px 36px;
-    border-radius: 4px;
-    background: white;
+    padding: $searchdropdown-padding;
+    border-radius: $searchdropdown-border-radius;
+    background: $searchdropdown-background;
     border: 1px solid #c5c5c5;
-    box-shadow: inset 0 1px 0 #f7f7f7, 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: $searchdropdown-box-shadow;
     transition: box-shadow 180ms, border 180ms;
     width: 185px;
     height: 37px;
 
     &.on-focus {
-      border-color: #197de1;
-      box-shadow: 0 0 0 2px rgba(25,125,255,0.5);
+      border-color: $searchdropdown-focus-border-color;
+      box-shadow: $searchdropdown-focus-box-shadow;
     }
 
     .search-dropdown-field {
@@ -32,7 +65,8 @@
     .search-dropdown-icon {
       position: absolute;
       top: 2px;
-      left: 4px;
+      left: $searchdropdown-icon-left;
+      right: $searchdropdown-icon-right;
       width: 28px;
       height: 28px;
 
@@ -83,13 +117,15 @@
     }
 
     &.with-clear {
-      padding-right: 28px;
+      padding-left: $searchdropdown-clear-padding-left;
+      padding-right: $searchdropdown-clear-padding-right;
 
       .search-dropdown-clear {
         display: block;
         position: absolute;
-        right: 0px;
         top: 2px;
+        left: $searchdropdown-clear-left;
+        right: $searchdropdown-clear-right;
         height: 28px;
         width: 28px;
         line-height: 28px;
@@ -107,13 +143,15 @@
   }
 
   .search-dropdown-popup {
+    box-sizing: border-box;
+    border-radius: $searchdropdown-dropdown-border-radius;
+    background-color: $searchdropdown-dropdown-background-color;
+    color: #474747;
+    box-shadow: $searchdropdown-dropdown-box-shadow;
+    backface-visibility: hidden;
+    padding: $searchdropdown-dropdown-padding;
+
     .search-dropdown-menu {
-      border-radius: 4px;
-      background-color: white;
-      color: #474747;
-      box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1), 0 3px 5px 0 rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.09);
-      backface-visibility: hidden;
-      padding: 4px 4px;
       box-sizing: border-box;
       position: relative;
       z-index: 1;
@@ -140,14 +178,36 @@
         box-sizing: border-box;
         text-overflow: ellipsis;
         overflow-x: hidden;
+
+        .v-icon {
+          margin-right: $searchdropdown-suggestion-icon-spacing;
+        }
       }
 
       .gwt-MenuItem-selected {
-        background-color: #197de1;
-        color: #ecf2f8;
-        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
+        background-color: $searchdropdown-suggestion-selected-background-color;
+        color: $searchdropdown-suggestion-selected-color;
+        text-shadow: $searchdropdown-suggestion-selected-text-shadow;
+      }
+
+      .highlight {
+        font-weight: $searchdropdown-highlight-font-weight;
+        color: $searchdropdown-highlight-color;
+        text-decoration: $searchdropdown-highlight-text-decoration;
+        text-shadow: $searchdropdown-highlight-text-shadow;
+        margin: 0;
+      }
+
+      .gwt-MenuItem-selected .highlight {
+        color: $searchdropdown-highlight-selected-color;
+        text-shadow: $searchdropdown-highlight-selected-text-shadow;
       }
     }
-  }
 
+    .show-more-results {
+      margin-top: 10px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+  }
 }

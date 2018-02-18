@@ -26,7 +26,7 @@ import java.util.List;
  */
 public interface SearchDropDownClientRpc extends ClientRpc {
 
-    void showSuggestions(String value, List<SharedSuggestion> suggestions);
+    void showSuggestions(String value, List<SharedSuggestion> suggestions, boolean moreButton);
 
     void hideSuggestions();
 

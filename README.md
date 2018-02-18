@@ -55,6 +55,14 @@ Debugging client side code in the searchfield-demo project:
  
 ## Release notes
 
+### Version 0.3.0 (2018-XX-XX)
+- Allow HTML content mode
+- Easy way to highlight matching part of suggestions
+- After search field blur do not popup suggestions
+- Lot of SASS variables to allow you to adjust look'n feel
+- Do not open pending dropdown if field has been blured
+- Open dropdown after focus of field if value present
+
 ### Version 0.2.0 (2018-02-13)
 - Increase Vaadin dependency to 8.3
 - Fix dropdown alignment issues with Vaadin 8.3

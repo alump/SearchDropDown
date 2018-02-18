@@ -11,9 +11,11 @@ import com.vaadin.ui.themes.ValoTheme;
 import org.vaadin.alump.searchdropdown.*;
 import org.vaadin.alump.searchdropdown.demo.data.DemoSource;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -27,13 +29,14 @@ public class ExampleView extends VerticalLayout implements View {
     /**
      * Example suggestion wrapper for data objects
      */
-    public static class ExampleSuggestion implements SearchSuggestion<String> {
+    public static class ExampleSuggestion extends HighlighedSearchSuggestion<String> {
 
         private final String text;
         private final Resource icon;
         private final String value;
 
-        public ExampleSuggestion(DemoSource.Data data) {
+        public ExampleSuggestion(DemoSource.Data data, Pattern queryPattern) {
+            setQuery(queryPattern);
             text = data.toString();
             if(data.getGender() == DemoSource.Gender.FEMALE) {
                 icon = VaadinIcons.FEMALE;
@@ -44,7 +47,7 @@ public class ExampleView extends VerticalLayout implements View {
         }
 
         @Override
-        public String getText() {
+        public String getPlainText() {
             return text;
         }
 
@@ -78,6 +81,8 @@ public class ExampleView extends VerticalLayout implements View {
         peopleSearch.setWidth(600, Unit.PIXELS);
         peopleSearch.addSearchListener(this::performSearch);
         peopleSearch.addClickListener(this::searchClicked);
+        peopleSearch.setMoreResultsButton("Show More Results", VaadinIcons.PLUS,
+                Arrays.asList(ValoTheme.BUTTON_FRIENDLY));
 
         addComponents(createNavigationRow(), addonInfo, demoInfo, peopleSearch, new GitHubLink());
     }
@@ -113,23 +118,39 @@ public class ExampleView extends VerticalLayout implements View {
     }
 
     private SearchSuggestionProvider<String> githubProvider = new SearchSuggestionProvider<String>() {
+
         @Override
         public void provideSuggestions(String query, SearchSuggestionPresenter<String> presenter) {
+
             String trimmed = query.trim();
 
-            if(trimmed.length() < 2) {
-                presenter.showSuggestions(query, Collections.EMPTY_LIST);
+            if (trimmed.length() < 2) {
+                presenter.showSuggestions(query, Collections.EMPTY_LIST, false);
                 return;
             }
 
             Runnable runnable = () -> {
                 DemoSource source = new DemoSource();
-                List<SearchSuggestion<String>> suggestions = source.findData(trimmed).stream()
-                        .map(s -> new ExampleSuggestion(s)).collect(Collectors.toList());
-              presenter.showSuggestions(trimmed, suggestions);
+                // Create pattern already here to optimize (no need to recompile it for each
+                // suggestion.
+                Pattern pattern = HighlighedSearchSuggestion.createPattern(trimmed);
+                List<HighlighedSearchSuggestion<String>> suggestions = source.findData(trimmed).stream()
+                        .map(s -> new ExampleSuggestion(s, pattern))
+                        .collect(Collectors.toList());
+                boolean hasMoreResults = suggestions.size() == DemoSource.MAX_RESULTS;
+                if (hasMoreResults) {
+                    suggestions.remove(suggestions.size() - 1);
+                }
+                presenter.showSuggestions(trimmed, suggestions, hasMoreResults);
             };
             Thread thread = new Thread(runnable);
             thread.start();
+        };
+
+        @Override
+        public void showMoreResults(String query) {
+            Notification.show("Not implemented for this demo");
+
         }
     };
 }

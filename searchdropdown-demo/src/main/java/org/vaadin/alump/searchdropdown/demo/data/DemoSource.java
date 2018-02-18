@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  */
 public class DemoSource {
 
-    public final static int MAX_RESULTS = 5;
+    public final static int MAX_RESULTS = 6;
 
     /**
      * Politically incorrect gender, does not have option Apache Helicopter, sorry, it's just a demo data

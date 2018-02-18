@@ -27,13 +27,13 @@ import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.vaadin.client.WidgetUtil;
-import com.vaadin.client.ui.SubPartAware;
-import com.vaadin.client.ui.VOverlay;
+import com.vaadin.client.ui.*;
 import com.vaadin.client.ui.menubar.MenuBar;
 import com.vaadin.client.ui.menubar.MenuItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -52,6 +52,9 @@ public class SearchDropDownWidget extends Composite {
     private boolean showClear = true;
     private SuggestionProvider suggestionProvider;
     private List<SelectionSelectionListener> selectionListeners = new ArrayList<>();
+    private List<FieldBlurListener> fieldBlurListeners = new ArrayList<>();
+    private List<FieldFocusListener> fieldFocusListeners = new ArrayList<>();
+    private ClickHandler showMoreClickHandler;
 
     public static final String LOADING_SUGGESTIONS_STYLENAME = "loading-suggestions";
     public static final String WITH_CLEAR_STYLENAME = "with-clear";
@@ -78,6 +81,14 @@ public class SearchDropDownWidget extends Composite {
 
     public interface SelectionSelectionListener {
         void searchSelection(Integer suggestionId, String text);
+    }
+
+    public interface FieldFocusListener {
+        void fieldFocus(FocusEvent event);
+    }
+
+    public interface FieldBlurListener {
+        void fieldBlur(BlurEvent event);
     }
 
     public SearchDropDownWidget() {
@@ -124,6 +135,22 @@ public class SearchDropDownWidget extends Composite {
         selectionListeners.remove(listener);
     }
 
+    public void addFieldBlurListener(FieldBlurListener listener) {
+        fieldBlurListeners.add(listener);
+    }
+
+    public void removeFieldBlurListener(FieldBlurListener listener) {
+        fieldBlurListeners.remove(listener);
+    }
+
+    public void addFieldFocusListener(FieldFocusListener listener) {
+        fieldFocusListeners.add(listener);
+    }
+
+    public void removeFieldFocusListener(FieldFocusListener listener) {
+        fieldFocusListeners.remove(listener);
+    }
+
     public void setSuggestionProvider(SuggestionProvider provider) {
         suggestionProvider = provider;
     }
@@ -139,10 +166,12 @@ public class SearchDropDownWidget extends Composite {
     private void onBlur(BlurEvent event) {
         removeStyleName("on-focus");
         checkClearVisibility(textField.getValue());
+        fieldBlurListeners.forEach(l -> l.fieldBlur(event));
     }
 
     private void onFocus(FocusEvent event) {
         addStyleName("on-focus");
+        fieldFocusListeners.forEach(l -> l.fieldFocus(event));
     }
 
     private void onKeyUp(KeyUpEvent event) {
@@ -221,6 +250,16 @@ public class SearchDropDownWidget extends Composite {
         }
     }
 
+    public void showMoreResultsButton(String caption, Icon iconUrl, Collection<String> classNames) {
+        getPopup().showMoreResultsButton(caption, iconUrl, classNames);
+    }
+
+    public void hideMoreResultsButton() {
+        if(popup != null) {
+            popup.hideMoreResultsButton();
+        }
+    }
+
     public void showSuggestions(List<Suggestion> suggestions) {
         SuggestionPopup popup = getPopup();
         popup.setSuggestions(suggestions);
@@ -244,6 +283,10 @@ public class SearchDropDownWidget extends Composite {
             popup = new SuggestionPopup();
         }
         return popup;
+    }
+
+    public void setShowMoreClickHandler(ClickHandler handler) {
+        this.showMoreClickHandler = handler;
     }
 
     public class SuggestionMenu extends MenuBar implements SubPartAware, LoadHandler {
@@ -308,6 +351,8 @@ public class SearchDropDownWidget extends Composite {
         private int topPosition;
         private int leftPosition;
         private boolean scrollPending = false;
+        private final FlowPanel panel;
+        private VButton showMoreButton = null;
 
         public SuggestionPopup() {
             super(true, false);
@@ -315,8 +360,12 @@ public class SearchDropDownWidget extends Composite {
             addStyleName("search-dropdown-popup");
 
             setOwner(SearchDropDownWidget.this);
+
+            panel = new FlowPanel();
+            setWidget(panel);
+
             menu = new SuggestionMenu();
-            setWidget(menu);
+            panel.add(menu);
 
             getElement().getStyle().setZIndex(Z_INDEX);
 
@@ -442,6 +491,35 @@ public class SearchDropDownWidget extends Composite {
                     scrollPending = false;
                 });
                 scrollPending = true;
+            }
+        }
+
+        public void showMoreResultsButton(String caption, Icon icon, Collection<String> classNames) {
+            if(showMoreButton == null) {
+                showMoreButton = new VButton();
+                if(icon != null) {
+                    showMoreButton.icon = icon;
+                    showMoreButton.wrapper.insertBefore(icon.getElement(),
+                            showMoreButton.captionElement);
+                }
+                panel.add(showMoreButton);
+                if(showMoreClickHandler != null) {
+                    showMoreButton.addClickHandler(showMoreClickHandler);
+                }
+            }
+            showMoreButton.addStyleName("show-more-results");
+            classNames.forEach(cn -> {
+                showMoreButton.addStyleName(cn);
+                showMoreButton.addStyleName("v-button-" + cn);
+            });
+
+            showMoreButton.setText(caption);
+        }
+
+        public void hideMoreResultsButton() {
+            if(showMoreButton != null) {
+                panel.remove(showMoreButton);
+                showMoreButton = null;
             }
         }
     }

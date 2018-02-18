@@ -18,16 +18,14 @@
 package org.vaadin.alump.searchdropdown;
 
 import com.vaadin.event.MouseEvents;
+import com.vaadin.server.Resource;
 import com.vaadin.shared.EventId;
 import com.vaadin.shared.MouseEventDetails;
 import com.vaadin.shared.Registration;
 import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.HasValueChangeMode;
-import org.vaadin.alump.searchdropdown.client.share.SearchDropDownClientRpc;
-import org.vaadin.alump.searchdropdown.client.share.SearchDropDownServerRpc;
-import org.vaadin.alump.searchdropdown.client.share.SearchDropDownState;
-import org.vaadin.alump.searchdropdown.client.share.SharedSuggestion;
+import org.vaadin.alump.searchdropdown.client.share.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,7 +51,7 @@ public class SearchDropDown<T> extends AbstractField<String> implements SearchSu
         public void suggestionSelected(int suggestionId) {
             SearchSuggestion<T> suggestion = currentSuggestions.get(suggestionId);
             if(suggestion != null) {
-                setValue(suggestion.getText(), true);
+                setValue(suggestion.getPlainText(), true);
             } else {
                 getLogger().warning("Failed to find selected suggestion " + suggestionId + " "
                         + currentSuggestions.size());
@@ -71,6 +69,13 @@ public class SearchDropDown<T> extends AbstractField<String> implements SearchSu
 
             SearchEvent<T> event = new SearchEvent<T>(SearchDropDown.this, text);
             searchListeners.forEach(l -> l.search(event));
+        }
+
+        @Override
+        public void showMoreResultsClicked(String query) {
+            if(suggestionProvider != null) {
+                suggestionProvider.showMoreResults(query);
+            }
         }
 
         @Override
@@ -184,15 +189,17 @@ public class SearchDropDown<T> extends AbstractField<String> implements SearchSu
     }
 
     @Override
-    public void showSuggestions(String query, List<SearchSuggestion<T>> suggestions) {
+    public void showSuggestions(String query, List<? extends SearchSuggestion<T>> suggestions, boolean showMoreResults) {
         if(isAttached()) {
-            getUI().access(() -> unsafeShowSuggestions(query, suggestions));
+            getUI().access(() -> unsafeShowSuggestions(query, suggestions, showMoreResults));
         } else {
-            unsafeShowSuggestions(query, suggestions);
+            unsafeShowSuggestions(query, suggestions, showMoreResults);
         }
     }
 
-    private void unsafeShowSuggestions(String query, List<SearchSuggestion<T>> suggestions) {
+    private void unsafeShowSuggestions(String query,
+                                       List<? extends SearchSuggestion<T>> suggestions,
+                                       boolean hasMoreResults) {
         clearSuggestions();
 
         List<SharedSuggestion> sharedSuggestions = new ArrayList<>();
@@ -204,7 +211,7 @@ public class SearchDropDown<T> extends AbstractField<String> implements SearchSu
             currentSuggestions.put(suggestionId, option);
 
             SharedSuggestion sharedSuggestion = new SharedSuggestion(suggestionId, option.getText(),
-                    option.getStyleName().orElse(null));
+                    option.getStyleName().orElse(null), option.getContentMode());
 
             option.getIcon().ifPresent(icon -> {
                 String key = getResourceKey(suggestionId);
@@ -217,7 +224,7 @@ public class SearchDropDown<T> extends AbstractField<String> implements SearchSu
 
         }).forEach(sharedSuggestions::add);
 
-        getRpcProxy(SearchDropDownClientRpc.class).showSuggestions(query, sharedSuggestions);
+        getRpcProxy(SearchDropDownClientRpc.class).showSuggestions(query, sharedSuggestions, hasMoreResults);
     }
 
     protected int getNextSuggestionId() {
@@ -299,5 +306,25 @@ public class SearchDropDown<T> extends AbstractField<String> implements SearchSu
     public void removeClickListener(MouseEvents.ClickListener listener) {
         removeListener(EventId.CLICK_EVENT_IDENTIFIER, MouseEvents.ClickEvent.class,
                 listener);
+    }
+
+    public void setMoreResultsButton(String caption) {
+        setMoreResultsButton(caption, null, Collections.EMPTY_LIST);
+    }
+
+    public void setMoreResultsButton(String caption, Resource icon) {
+        setMoreResultsButton(caption, icon, Collections.EMPTY_LIST);
+    }
+
+    public void setMoreResultsButton(String caption, Resource icon, Collection<String> styleNames) {
+        ShowMoreResultsButtonState buttonState = new ShowMoreResultsButtonState();
+        buttonState.caption = caption;
+        if(icon != null) {
+            setResource("more-results-icon", icon);
+        } else {
+            setResource("more-results-icon", null);
+        }
+        buttonState.styleNames = new ArrayList<>(styleNames);
+        getState().showMoreButton = buttonState;
     }
 }

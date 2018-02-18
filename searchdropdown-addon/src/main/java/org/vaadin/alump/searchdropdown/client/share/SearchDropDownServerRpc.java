@@ -30,4 +30,5 @@ public interface SearchDropDownServerRpc extends AbstractTextFieldServerRpc, Cli
 
     void textSelected(String text);
 
+    void showMoreResultsClicked(String query);
 }

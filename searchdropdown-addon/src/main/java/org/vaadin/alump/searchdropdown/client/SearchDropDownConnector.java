@@ -18,6 +18,9 @@
 package org.vaadin.alump.searchdropdown.client;
 
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.FocusEvent;
 import com.vaadin.client.ApplicationConnection;
 import com.vaadin.client.WidgetUtil;
 import com.vaadin.client.annotations.OnStateChange;
@@ -25,15 +28,13 @@ import com.vaadin.client.ui.ClickEventHandler;
 import com.vaadin.client.ui.Icon;
 import com.vaadin.client.ui.textfield.ValueChangeHandler;
 import com.vaadin.shared.MouseEventDetails;
+import com.vaadin.shared.ui.ContentMode;
 import org.vaadin.alump.searchdropdown.SearchDropDown;
 
 import com.vaadin.client.communication.StateChangeEvent;
 import com.vaadin.client.ui.AbstractComponentConnector;
 import com.vaadin.shared.ui.Connect;
-import org.vaadin.alump.searchdropdown.client.share.SearchDropDownClientRpc;
-import org.vaadin.alump.searchdropdown.client.share.SearchDropDownServerRpc;
-import org.vaadin.alump.searchdropdown.client.share.SearchDropDownState;
-import org.vaadin.alump.searchdropdown.client.share.SharedSuggestion;
+import org.vaadin.alump.searchdropdown.client.share.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,21 +50,38 @@ public class SearchDropDownConnector extends AbstractComponentConnector implemen
 
     private SearchDropDownClientRpc clientRpc = new SearchDropDownClientRpc() {
         @Override
-        public void showSuggestions(String value, List<SharedSuggestion> suggestions) {
-            List<SearchDropDownWidget.Suggestion> converted = new ArrayList<>();
-            for (SharedSuggestion suggestion : suggestions) {
-                SearchDropDownWidget.Suggestion created = new SearchDropDownWidget.Suggestion(suggestion.id,
-                        generateSuggestionHtml(suggestion), suggestion.styleName);
-
-                converted.add(created);
-            }
-            getWidget().showSuggestions(converted);
+        public void showSuggestions(String value, List<SharedSuggestion> suggestions, boolean showMoreButton) {
 
             if(value.equals(waitingSuggestionTo)) {
+                List<SearchDropDownWidget.Suggestion> converted = new ArrayList<>();
+                for (SharedSuggestion suggestion : suggestions) {
+                    SearchDropDownWidget.Suggestion created = new SearchDropDownWidget.Suggestion(suggestion.id,
+                            generateSuggestionHtml(suggestion), suggestion.styleName);
+
+                    converted.add(created);
+                }
+                getWidget().showSuggestions(converted);
+
+                if(showMoreButton && getState().showMoreButton != null) {
+                    ShowMoreResultsButtonState button = getState().showMoreButton;
+                    Icon icon = null;
+                    if(SearchDropDownConnector.this.getResourceUrl("more-results-icon") != null) {
+                        icon = SearchDropDownConnector.this.getConnection().getIcon(
+                                SearchDropDownConnector.this.getResourceUrl("more-results-icon"));
+                    }
+                    getWidget().showMoreResultsButton(button.caption, icon, button.styleNames);
+                } else {
+                    getWidget().hideMoreResultsButton();
+                }
+
                 getWidget().setLoadingSuggestions(false);
                 waitingSuggestionTo = null;
             } else {
-                getRpcProxy(SearchDropDownServerRpc.class).setText(waitingSuggestionTo, 0);
+                if (waitingSuggestionTo != null) {
+                    getRpcProxy(SearchDropDownServerRpc.class).setText(waitingSuggestionTo, 0);
+                } else {
+                    getWidget().setLoadingSuggestions(false);
+                }
             }
         }
 
@@ -95,7 +113,23 @@ public class SearchDropDownConnector extends AbstractComponentConnector implemen
         valueChangeHandler = new ValueChangeHandler(this);
 
         getWidget().setSuggestionProvider(this::provideSuggestions);
+        getWidget().addFieldBlurListener(this::onFieldBlur);
+        getWidget().addFieldFocusListener(this::onFieldFocus);
         getWidget().addSuggestionSelectionListener(this::onSelection);
+        getWidget().setShowMoreClickHandler(this::showMoreButtonClicked);
+    }
+
+    private void showMoreButtonClicked(ClickEvent event) {
+        getWidget().hideSuggestions();
+        getRpcProxy(SearchDropDownServerRpc.class).showMoreResultsClicked(getWidget().getText());
+    }
+
+    private void onFieldBlur(BlurEvent event) {
+        waitingSuggestionTo = null;
+    }
+
+    private void onFieldFocus(FocusEvent event) {
+        sendQuery(getWidget().getText());
     }
 
     private void onSelection(Integer suggestionId, String text) {
@@ -132,25 +166,30 @@ public class SearchDropDownConnector extends AbstractComponentConnector implemen
                 sb.append(icon.getElement().getString());
             }
         }
-        String content;
         if ("".equals(suggestion.text)) {
-            content = "&nbsp;";
+            sb.append("<span>&nbsp;</span>");
+        } else if(suggestion.contentMode == ContentMode.PREFORMATTED) {
+            sb.append("<pre>" + WidgetUtil.escapeHTML(suggestion.text) + "</pre>");
+        } else if(suggestion.contentMode == ContentMode.HTML) {
+            sb.append(suggestion.text);
         } else {
-            content = WidgetUtil.escapeHTML(suggestion.text);
+            sb.append("<span>" + WidgetUtil.escapeHTML(suggestion.text) + "</span>");
         }
-        sb.append("<span>" + content + "</span>");
         return sb.toString();
+    }
+
+    protected void sendQuery(String query) {
+        boolean wasWaiting = waitingSuggestionTo != null;
+        waitingSuggestionTo = query;
+        if(!wasWaiting) {
+            getWidget().setLoadingSuggestions(true);
+            getRpcProxy(SearchDropDownServerRpc.class).setText(query, 0);
+        }
     }
 
     @Override
     public void sendValueChange() {
-        boolean wasWaiting = waitingSuggestionTo != null;
-        final String value = getWidget().getText();
-        waitingSuggestionTo = value;
-        if(!wasWaiting) {
-            getWidget().setLoadingSuggestions(true);
-            getRpcProxy(SearchDropDownServerRpc.class).setText(value, 0);
-        }
+        sendQuery(getWidget().getText());
     }
 
     @OnStateChange("valueChangeMode")

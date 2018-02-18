@@ -29,6 +29,13 @@ public interface SearchSuggestionPresenter<T> {
      * Ask to show given suggestions. This method is safe to be called outside main UI context / thread.
      * @param query Query earlier given to SearchSuggestionProvider
      * @param suggestions Suggestions to be shown
+     * @param hasMoreResults If true and show more results button is define there will be button at the end of list
      */
-    void showSuggestions(String query, List<SearchSuggestion<T>> suggestions);
+    void showSuggestions(String query, List<? extends SearchSuggestion<T>> suggestions, boolean hasMoreResults);
+
+
+    @Deprecated
+    default void showSuggestions(String query, List<? extends SearchSuggestion<T>> suggestions) {
+        showSuggestions(query, suggestions, false);
+    }
 }
