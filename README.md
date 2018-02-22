@@ -55,8 +55,8 @@ Debugging client side code in the searchfield-demo project:
  
 ## Release notes
 
-### Version 0.3.0 (2018-XX-XX)
-- Allow HTML content mode
+### Version 0.3.0 (2018-02-12)
+- Allow HTML content mode in dropdown items
 - Easy way to highlight matching part of suggestions
 - After search field blur do not popup suggestions
 - Lot of SASS variables to allow you to adjust look'n feel
